@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Platform Data Inspector</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 10px;
+    }
+    #resultDiv {
+      margin-top: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    table, th, td {
+      border: 1px solid black;
+      padding: 5px;
+    }
+    #objectName {
+      font-weight: bold;
+      font-size: 20px;
+    }
+	
+	button {
+		width: 135px;
+		margin: 10px;
+	}
+  </style>
+</head>
+<body>
+  <h2 id="objectName"></h2>
+  <button id="getValueBtn">Show All Data</button>
+  <button id="openNewTabBtn">Open in New Tab</button>
+  <button id="openQueryConsoleBtn">Open Query Console</button>
+  <div id="resultDiv"></div>
+  
+  
+  <script src="popup.js"></script>
+</body>
+</html>

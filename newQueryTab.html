@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Conga RLM Query Console</title>
+  <link rel="icon" type="image/svg+xml" href="conga_logo.svg">
+  <script src="xlsx.full.min.js"></script>
+  <style>
+    #header {
+      padding: 20px 0px;
+      display: flex;
+      align-items: center; 
+    }
+
+    select {
+      margin-left: 10px;
+      padding: 5px;
+      font-size: 16px;
+    }
+
+    #ObjectDropDown ul {
+      max-height: 150px;
+      overflow-y: auto; 
+    }
+
+    #ObjectDropDown li:hover {
+      background-color: #e0e0e0; 
+    }
+    
+    #query {
+      max-height: 85px;
+      height: 65px;
+      width: 100%;
+    }
+
+    #exportButton, #copyAsExcelButton, #exportAsExcelButton, #importAsExcelButton, #saveImportButton, #exportAsExcelQueryButton, #openImportDataPopupButton, #saveButton, #closeButton, #prevPageButton, #nextPageButton {
+      display: inline;
+      margin: 0 auto;
+      padding: 5px 15px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .boxRight {
+      text-align: end;
+    }
+
+    #exportButton:hover, #copyAsExcelButton:hover, #exportAsExcelButton:hover, #importAsExcelButton:hover, #saveImportButton:hover, #exportAsExcelQueryButton:hover, #openImportDataPopupButton:hover, #saveButton:hover, #closeButton:hover, #prevPageButton:hover, #nextPageButton:hover {
+      background-color: #0056b3;
+    }
+
+    #saveImportButton:disabled, #exportButton:disabled, #prevPageButton:disabled, #nextPageButton:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    #resultsTable {
+      margin-top: 20px;
+      border-collapse: collapse;
+      width: 100%;
+      white-space: nowrap;
+      margin-bottom: 42px;
+    }
+
+    #resultsTable th, #resultsTable td{
+      border: 1px solid #ccc;
+      padding: 2px;
+      text-align: left;
+    }
+
+    #resultsTable th {
+      background-color: #f0f0f0;
+    }
+
+    .responseContainer {
+      display: flex;
+      gap: 10px;
+    }
+
+    .box{
+      width: 45%;
+    }
+
+    .txtCenter{
+      text-align: center;
+    }
+
+    #boxSearchData{
+      padding: 4px;
+    }
+
+    #searchDataDiv{
+      display: inline;
+      margin: 5px;
+    }
+
+    #errorDiv, #recordCountDiv{
+      display: inline;
+    }
+
+    .tooltip {
+      position: absolute;
+      background-color: #f5f5f5;
+      color: #0e0e0e;
+      padding: 8px;
+      border-radius: 3px;
+      font-size: 12px;
+      display: none;
+      z-index: 1000;
+      box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .icon-btn {
+      display: inline;
+      margin: 0 auto;
+      padding: 5px 15px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+  .select-btn {
+      background-color: #4CAF50;
+  }
+
+  .clear-btn {
+      background-color: #f44336;
+  }
+
+  .customMenu {
+    position: absolute;
+    display: none;
+    list-style-type: none;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+  }
+  .customMenu li {
+      padding: 8px;
+      cursor: pointer;
+  }
+  .customMenu li:hover {
+      background-color: #f0f0f0;
+  }
+
+  #customMenuDiv{
+    display: none;
+  }
+
+  .autocomplete-box {
+    border: 1px solid #ddd;
+    background-color: #fff;
+    max-height: 150px;
+    overflow-y: auto;
+    width: 100%;
+    z-index: 1000;
+  }
+
+  .autocomplete-item {
+      padding: 8px;
+      cursor: pointer;
+  }
+
+  .autocomplete-item:hover {
+      background-color: #f1f1f1;
+  }
+
+  .autocomplete-option {
+    padding: 5px;
+    cursor: pointer;
+  }
+
+  .autocomplete-option.highlighted {
+      background-color: #e0e0e0;
+  }
+
+  .btn {
+    background-color: DodgerBlue;
+    border: none;
+    color: white;
+    padding: 12px 16px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .btn:hover {
+    background-color: RoyalBlue;
+  }
+
+  #messageDiv, #downloadingDiv {
+    position: fixed;
+    top: -50px;
+    left: 0;
+    width: 100%;
+    background-color: #ffcc00;
+    color: #ffffff;
+    padding: 10px;
+    font-size: 16px;
+    text-align: center;
+    z-index: 1001;
+    transition: top 0.5s ease-in-out;
+  }
+
+  .radio-container {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+  }
+
+  .highlight {
+    background-color: #ffff9999;
+  }
+
+  #pastePopup {
+    position: fixed;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 15px;
+    border: 1px solid #ccc;
+    z-index: 1000;
+  }
+
+  .dots::after {
+    content: '';
+    display: inline-block;
+    animation: dots 1.5s steps(3, end) infinite;
+  }
+
+  @keyframes dots {
+    0% { content: ''; }
+    33% { content: '.'; }
+    66% { content: '..'; }
+    100% { content: '...'; }
+  }
+
+  #pageSizes {
+    padding: 1px;
+    font-size: 13px;
+    margin-left: 0px;
+    margin-right: 10px;
+  }
+
+  #superHeader{
+    background-color: #eef4f8;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+  }
+
+  body{
+    margin: 0px;
+  }
+
+  #container{
+    margin: 0px 10px;
+  }
+
+  #logoText{
+    font-size: 1.2rem;
+    margin-left: 3px;
+  }
+
+  #paginationControls{
+    position: fixed; 
+    bottom: 0; 
+    left: 0; 
+    width: 100%; 
+    background: #f8f9fa; 
+    padding: 10px; 
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); 
+    text-align: center;
+  }
+    
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+  
+  <div id="messageDiv" style="display: none;"></div>
+  <div id="downloadingDiv" style="display: none; top:0px; color:inherit;">Downloading<span style="width: 10px; display:inline-flex;" class="dots"></span></div>
+
+  <ul id="customMenu" class="customMenu">
+    <li id="menuOption1">Open in App</li>
+    <li id="menuOption2">Open in ODE</li>
+    <li id="menuOption3">Copy link</li>
+  </ul>
+<div id="superHeader"><img src="conga_logo.svg" alt="Logo" style="width: 2rem; height: 25px;"><div id="logoText">Conga RLM Query Console</div></div>  
+<div id="container">
+<div id="header">
+  <div id="ObjectDropDown"></div>
+  <div id="FieldsDropDown"></div>
+  <div id="selectfieldsDiv"></div>
+  <div class="radio-container" style="position: absolute; right: 50px;">
+    <label>
+        <input type="radio" name="actionOption" value="update" checked="true"> Update
+    </label>
+    <label>
+        <input type="radio" name="actionOption" value="insert"> Insert
+    </label>
+    <label>
+        <input type="radio" name="actionOption" value="delete"> Delete
+    </label>
+</div>
+</div>
+<div>
+  <div> 
+    <textarea id="query" spellcheck="false" style="max-height: 85px;"></textarea> 
+  </div>
+  <div class="responseContainer">
+    <div class="box">
+      <div id="errorDiv"></div>
+      <div id="recordCountDiv"></div>
+    </div>
+    
+    <div class="box txtCenter" Style="width:10%">
+      <button class="btn" id="exportButton">Export</button>
+    </div>
+    <div class="box boxRight">
+      <div class="box" id="searchDataDiv">
+        <input type="text" id="boxSearchData" placeholder="Search..." />
+      </div>
+      <button title="Copy as Excel" class="btn" id="copyAsExcelButton"><i class="fa fa-copy"></i></button>
+      <button title="Export as Excel" class="btn" id="exportAsExcelButton"><i class="fa fa-cloud-download"></i></button>
+      <button title="Import copied data" class="btn" id="openImportDataPopupButton"><i class="fa fa-cloud-upload"></i></button>
+      <button title="Export from query" class="btn" id="exportAsExcelQueryButton"><i class="fa fa-download"></i></button>
+      <button title="Import excel" class="btn" id="importAsExcelButton"><i class="fa fa-upload"></i></button>
+      <button title="Save" class="btn" id="saveImportButton"><i class="fa fa-save"></i></button>
+
+    </div>
+  </div>
+</div>
+
+
+<table id="resultsTable" style="display: none;">
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>Name</th>
+    </tr>
+  </thead>
+  <tbody id="resultsBody"></tbody>
+</table>
+<div id="pastePopup" style="display: none; min-width: 300px;">
+  <div id="pasteArea" style="padding-bottom: 10px; min-height: 100px; overflow: auto; max-height: 500px; max-width: 1000px; text-align: center; font-family: monospace; font-size: 15px; color: #8d8d8d;">Paste here !</div>
+  <button class="btn" id="saveButton">Ok</button>
+  <button class="btn" id="closeButton">Close</button>
+</div>
+</div>
+<div id="paginationControls">
+  <select name="pageSizes" id="pageSizes">
+    <option value="50">50</option>
+    <option value="100">100</option>
+    <option value="200">200</option>
+    <option value="500">500</option>
+    <option value="1000">1000</option>
+  </select>
+  <button class="btn" style="padding: 2px 10px;" id="prevPageButton" disabled><i class="fa fa-caret-left"></i></button>
+  <input type="number" id="pageNumberInput" min="1" />
+  <span id="totalPages"></span>
+  <button class="btn" style="padding: 2px 10px;" id="nextPageButton" disabled><i class="fa fa-caret-right"></i></button>
+</div>
+<script src="newQueryTab.js"></script>
+</body>
+</html>

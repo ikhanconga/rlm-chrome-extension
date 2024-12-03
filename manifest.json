@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "Platform Data Explorer",
+  "version": "1.0",
+  "description": "Inspect platform object data with ease.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabs",
+    "windows"
+  ],
+  "incognito": "split",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Platform Data Explorer"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.congacloud.com/*", "*://*.congacloud.eu/*", "*://*.congacloud.au/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["newQueryTab.js", "newTab.js","inputs.txt", "inspect.html", "newQueryTab.html", "newTab.html", "popup.html"],
+      "matches": ["*://*.congacloud.com/*", "*://*.congacloud.eu/*", "*://*.congacloud.au/*"]
+    }
+  ],
+  "host_permissions": [
+    "https://*.congacloud.au/*",
+    "https://*.congacloud.eu/*",
+    "https://*.congacloud.com/*"
+  ]
+}

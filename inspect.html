@@ -1,0 +1,99 @@
+<html>
+<head>
+  <title>Conga RLM Data Inspector</title>
+  <link rel="icon" type="image/svg+xml" href="conga_logo.svg">
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 15px;
+    }
+    th, td {
+      border: 1px solid black;
+      padding: 10px;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    #objectName {
+      font-size: 19px;
+      font-weight: bold;
+    }
+    #searchBox {
+      padding: 5px;
+      font-size: 14px;
+    }
+	.headerTop {
+		font-size: 24px;
+		text-align: center;
+		color: black;
+		background-color: #f0f0f0;
+    z-index: 1000;
+		
+	}
+	#head{
+	   position: sticky;
+      top: 0;
+      z-index: 1000;
+	  background-color: white;
+	}
+
+  #messageDiv {
+    position: fixed;
+    top: -50px;
+    left: 0;
+    width: 100%;
+    background-color: #ffcc00;
+    color: #ffffff;
+    padding: 10px;
+    font-size: 16px;
+    text-align: center;
+    z-index: 1001;
+    transition: top 0.5s ease-in-out;
+  }
+
+  #superHeader{
+    background-color: #eef4f8;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+  }
+
+  body{
+    margin: 0px;
+  }
+
+  .container{
+    margin: 0px 10px;
+  }
+
+  #logoText{
+    font-size: 1.2rem;
+    margin-left: 3px;
+  }
+  </style>
+</head>
+<body>
+  <div id="messageDiv" style="display: none;"></div>
+  <div id="head">
+    <div id="superHeader"><img src="conga_logo.svg" alt="Logo" style="width: 2rem; height: 25px;"><div id="logoText">Conga RLM Data Inspector</div></div>  
+    <div class="container">	
+      <div class="header">
+
+        <input type="text" id="searchBox" placeholder="Search..." style="display:none;"/>
+
+      <h2 id="objectName"></h2>
+      </div>
+    </div>
+  </div>
+  <div class="container">	
+    <div id="tableDiv">Loading data...</div>
+  </div>
+  <script src="newTab.js"></script>
+</body>
+</html>

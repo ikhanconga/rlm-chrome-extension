@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dropdown Display</title>
+  <script src="xlsx.full.min.js"></script>
+  <style>
+    #header {
+      padding: 20px;
+      background-color: #f0f0f0;
+      display: flex;
+      align-items: center;
+    }
+
+    select {
+      margin-left: 10px;
+      padding: 5px;
+      font-size: 16px;
+    }
+
+    #ObjectDropDown ul {
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    #ObjectDropDown li:hover {
+      background-color: #e0e0e0;
+    }
+    
+    #query {
+      max-height: 85px;
+      height: 65px;
+      width: 100%;
+    }
+
+    #exportButton, #copyAsExcelButton, #exportAsExcelButton {
+      display: inline;
+      margin: 0 auto;
+      padding: 5px 15px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .boxRight {
+      text-align: end;
+    }
+
+    #exportButton:hover, #copyAsExcelButton:hover, #exportAsExcelButton:hover {
+      background-color: #0056b3;
+    }
+
+    #resultsTable {
+      margin-top: 20px;
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    #resultsTable th, #resultsTable td {
+      border: 1px solid #ccc;
+      padding: 2px;
+      text-align: left;
+    }
+
+    #resultsTable th {
+      background-color: #f0f0f0;
+    }
+
+    .responseContainer {
+      display: flex;
+      gap: 10px;
+    }
+
+    .box{
+      width: 45%;
+    }
+
+    .txtCenter{
+      text-align: center;
+    }
+
+    #boxSearchData{
+      padding: 4px;
+    }
+
+    #searchDataDiv{
+      display: inline;
+      margin: 5px;
+    }
+
+    #errorDiv, #recordCountDiv{
+      display: inline;
+    }
+    
+  </style>
+</head>
+<body>
+<div id="header">
+  <div id="ObjectDropDown"></div>
+  <div id="FieldsDropDown"></div>
+  <div id="selectfieldsDiv"></div>
+</div>
+<div>
+  <div> 
+    <textarea id="query" style="max-height: 85px;"></textarea> 
+  </div>
+  <div class="responseContainer">
+    <div class="box">
+      <div id="errorDiv"></div>
+      <div id="recordCountDiv"></div>
+    </div>
+    
+    <div class="box txtCenter" Style="width:10%">
+      <button id="exportButton">Export</button>
+    </div>
+    <div class="box boxRight">
+      <div class="box" id="searchDataDiv">
+        <input type="text" id="boxSearchData" placeholder="Search..." />
+      </div>
+      <button id="copyAsExcelButton">Copy as Excel</button>
+      <button id="exportAsExcelButton">Export as Excel</button>
+
+    </div>
+  </div>
+   
+</div>
+<table id="resultsTable" style="display: none;">
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>Name</th>
+    </tr>
+  </thead>
+  <tbody id="resultsBody"></tbody>
+</table>
+<script src="newTab.js"></script>
+</body>
+</html>
