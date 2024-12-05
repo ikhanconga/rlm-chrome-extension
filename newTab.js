@@ -15,10 +15,34 @@ window.onload = function () {
   } 
 
   const initialData = [];
+  
   showAllData(platformUri, accessToken, objectname, id);
+  
 
   document.getElementById('searchBox').addEventListener('input', filterTable);
 };
+
+function renderOpenRecordinODE(platformUri, objectname, id){
+  const OpenInODEDiv = document.getElementById("OpenInODE");
+  const OpenRecordinODE = document.createElement("a");
+  OpenRecordinODE.target = "_blank";
+  OpenRecordinODE.href = `https://${platformUri}/admin/entity/${objectname}/detail/${id}`;
+  OpenRecordinODE.textContent = "Open Record in ODE";
+  OpenInODEDiv.appendChild(OpenRecordinODE);
+}
+
+function renderOpenRecordinApp(platformUri, objectname, id){
+  if(objectname === 'Agreement'){
+ 
+    const OpenInAppDiv = document.getElementById("OpenInApp");
+    const OpenRecordinApp = document.createElement("a");
+    OpenRecordinApp.target = "_blank";
+    OpenRecordinApp.href = `https://${platformUri}/clm/detail/${id}`;
+    OpenRecordinApp.textContent = "Open Record in App";
+    OpenInAppDiv.appendChild(OpenRecordinApp);
+
+  }
+}
 
 function showAllData(platformUri, accessToken, objectname, id){
   if (accessToken && objectname && id) {
@@ -45,6 +69,8 @@ function showAllData(platformUri, accessToken, objectname, id){
         objectNameDiv.textContent = `Object: ${objectname}`;
 		
 		    document.getElementById('searchBox').style.display = 'inline-block';
+        renderOpenRecordinODE(platformUri, objectname, id);
+        renderOpenRecordinApp(platformUri, objectname, id)
       }
       else{
         const tableDiv = document.getElementById('tableDiv');
