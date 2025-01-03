@@ -14,7 +14,11 @@
     }
     th {
       background-color: #f2f2f2;
+      text-align: left;
+      padding: 0px 5px;
+      font-weight: 600;
     }
+
     .header {
       display: flex;
       align-items: flex-start;
@@ -22,7 +26,6 @@
     }
     #objectName {
       font-size: 19px;
-      font-weight: bold;
     }
     #searchBox {
       padding: 5px;
@@ -135,8 +138,40 @@
   text-decoration: underline;
 }
 
+/* Style for the list */
+.tree ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Style for headers */
+.headerTree {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+/* Style for the + and - buttons */
+.toggleTree {
+  cursor: pointer;
+  border: none;
+  background: #007bff;
+  color: white;
+  border-radius: 3px;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+/* Default content is visible */
+.contentTree {
+  margin-left: 20px;
+}
+
+
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  
 </head>
 <body>
   <div id="messageDiv" style="display: none;"></div>
@@ -154,7 +189,7 @@
     <div class="container">	
       <div class="header">
         <div class="left">
-          <input type="text" id="searchBox" placeholder="Search..." style="display:none;"/>
+          <input type="text" id="searchBox" placeholder="Filter..." style="display:none;"/>
         </div>
         <div class="right">
           <div id="OpenInODE"></div>

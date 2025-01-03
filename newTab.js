@@ -71,8 +71,9 @@ function showAllData(platformUri, accessToken, objectname, id){
 
         initializeTable(fields, platformUri, accessToken, objectname);
 
-        const objectNameDiv = document.getElementById('objectName');
-        objectNameDiv.textContent = `Object: ${objectname}`;
+        
+
+
 		
 		    document.getElementById('searchBox').style.display = 'inline-block';
         renderOpenRecordinODE(platformUri, objectname, id);
@@ -113,6 +114,10 @@ async function fetchMetadata(platformUri, accessToken, objectname) {
       return null;
   }
 
+  const objectNameDiv = document.getElementById('objectName');
+  objectNameDiv.textContent = data.Data.Name+' ('+ data.Data.DisplayName +')';
+  objectNameDiv.appendChild(createDropdownForObject());
+
   return data.Data.FieldMetadata;
 }
 
@@ -120,13 +125,14 @@ function createFieldMetadataMap(templateData, metadata) {
  
   const metadataMap = {};
   metadata.forEach(field => {
-      metadataMap[field.FieldName] = field.DataType;
+      metadataMap[field.FieldName] = field;
   });
 
   const combinedData = templateData.map(item => ({
     name: item.name,
     value: item.value,
-    type: metadataMap[item.name]
+    type: metadataMap[item.name].DataType,
+    displayName: metadataMap[item.name].DisplayName
 
   }));
   initialData = combinedData;
@@ -140,21 +146,23 @@ function renderTable(dataMap) {
   table.id = "dataTable";
 
   // Add table header
-  /*const headerRow = table.insertRow();
-  ['Field Name', 'Data Type', 'Value'].forEach(text => {
+  const headerRow = table.insertRow();
+  ['Field API Name', 'Display Name', 'Data Type', 'Value', ' '].forEach(text => {
       const th = document.createElement('th');
       th.textContent = text;
       headerRow.appendChild(th);
-  });*/
+  });
 
   dataMap.forEach(data => {
     const row = table.insertRow();
     const fieldNameCell = row.insertCell();
+    const displayNameCell = row.insertCell();
     const dataTypeCell = row.insertCell();
     const valueCell = row.insertCell();
     const dropdownCell = row.insertCell();
 
     fieldNameCell.textContent = data.name;
+    displayNameCell.textContent = data.displayName;
     dataTypeCell.textContent = data.type || 'Unknown';
     valueCell.textContent = typeof data.value === 'object' && data.value !== null ? JSON.stringify(data.value, null, 2) : data.value;
 
@@ -228,6 +236,63 @@ function createDropdown(fieldName) {
 
   // Append the button and the dropdown content to the document body (or any container)
   const container = document.createElement('dropdown-container'); // You can change this ID
+  container.appendChild(button);
+  container.appendChild(dropdownContent);
+
+  return container;
+}
+
+function createDropdownForObject() {
+
+  const faI = document.createElement('i');
+  faI.classList.add('fa');
+  faI.classList.add('fa-caret-down');
+  // Create the dropdown button
+  const button = document.createElement('button');
+  button.appendChild(faI);
+  button.style.padding = '5px 10px';
+  button.style.borderRadius = '0';
+  button.classList.add('dropdown-btn'); // Add class for styling (optional)
+
+  // Create the dropdown container (hidden initially)
+  const dropdownContent = document.createElement('div');
+  dropdownContent.classList.add('dropdown-content'); // Add class for styling (optional)
+  dropdownContent.style.right = '0.8%';
+  dropdownContent.style.fontSize = '16px';
+  dropdownContent.style.display = 'none'; // Initially hidden
+
+  const objectname = getQueryParam('objectType');
+  const platformUri = getQueryParam('hostname');
+  // Create the dropdown list items
+  const item1 = document.createElement('a');
+  item1.textContent = 'Object setup';
+  item1.target = "_blank";
+  item1.href = `https://${platformUri}/schemas/object/details/${objectname}`;
+  //item1.addEventListener('click', () => alert('Option 1 clicked'));
+
+  /*const item2 = document.createElement('a');
+  item2.textContent = 'Option 2';
+  item2.href = '#';
+  item2.addEventListener('click', () => alert('Option 2 clicked'));
+
+  const item3 = document.createElement('a');
+  item3.textContent = 'Option 3';
+  item3.href = '#';
+  item3.addEventListener('click', () => alert('Option 3 clicked'));
+  */
+  // Append items to the dropdown content
+  dropdownContent.appendChild(item1);
+  //dropdownContent.appendChild(item2);
+  //dropdownContent.appendChild(item3);
+
+  // Toggle dropdown visibility when the button is clicked
+  button.addEventListener('click', () => {
+    dropdownContent.style.display = dropdownContent.style.display === 'none' ? 'block' : 'none';
+  });
+
+  // Append the button and the dropdown content to the document body (or any container)
+  const container = document.createElement('objectDropdown-container'); // You can change this ID
+  container.style.margin='0px 10px';
   container.appendChild(button);
   container.appendChild(dropdownContent);
 
