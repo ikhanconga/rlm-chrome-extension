@@ -8,6 +8,8 @@ window.onload = function() {
     const exportButtonD = document.getElementById("exportButton");
     exportButtonD.disabled = false;
 
+    document.getElementById("importComponentsDiv").style.display = "none";
+
     // autocomplete for where clause ==============//
     const queryInput = document.getElementById("query");
     const autocompleteList = document.getElementById("autocomplete-list");
@@ -18,6 +20,24 @@ window.onload = function() {
     let selectedIndex = -1;
     let currentSuggestions = [];
     let lastCtrlPressTime = 0;
+
+    let isImportOpen = false;
+
+    function resetInitials() {
+        currentPage = 1;
+
+        totalRecords = 0;
+        totalPages = 0;
+        allData = [];
+        isLoading = false;
+
+        rbNoId = false;
+        requestBodySelect = [];
+        requestBodyObjectName = '';
+
+        const saveButton = document.getElementById("saveImportButton");
+        saveButton.disabled = true;
+    }
 
     // Event listener for input changes
     queryInput.addEventListener("input", () => {
@@ -348,6 +368,7 @@ window.onload = function() {
                     return response.json();
                 })
                 .then(data => {
+                    console.log('isImportOpen::'+isImportOpen);
                     if (data.Success) {
                         createFieldsDropdown(data.Data.FieldMetadata);
                         data.Data.FieldMetadata.forEach((item, index) => {
@@ -363,7 +384,7 @@ window.onload = function() {
         }
 
         function createFieldsDropdown(fields) {
-            console.log('fields::' + JSON.stringify(fields));
+            //console.log('fields::' + JSON.stringify(fields));
             const fieldsContainer = document.getElementById("FieldsDropDown");
             const selectfieldsDiv = document.getElementById("selectfieldsDiv");
             fieldsContainer.innerHTML = "";
@@ -432,7 +453,7 @@ window.onload = function() {
                 const value = input.value.toLowerCase();
                 suggestionsList.innerHTML = "";
                 currentIndex = -1;
-                console.log('value::' + value);
+                //console.log('value::' + value);
 
                 if (value) {
 
@@ -535,6 +556,11 @@ window.onload = function() {
                     suggestionsList.style.display = "none";
                 }
             });
+
+            if (isImportOpen) {
+                document.getElementById("FieldsDropDown").style.display = "none";
+                document.getElementById("selectfieldsDiv").style.display = "none";
+            }
         }
 
         function updateSuggestionHighlight(suggestionsList, currentIndex) {
@@ -577,18 +603,7 @@ window.onload = function() {
         let requestBodySelect = [];
         let requestBodyObjectName = '';
 
-        function resetInitials() {
-            currentPage = 1;
-
-            totalRecords = 0;
-            totalPages = 0;
-            allData = [];
-            isLoading = false;
-
-            rbNoId = false;
-            requestBodySelect = [];
-            requestBodyObjectName = '';
-        }
+        
 
         const exportButton = document.getElementById("exportButton");
         exportButton.addEventListener("click", () => {
@@ -613,6 +628,7 @@ window.onload = function() {
 
         function fetchData() {
             const query = document.getElementById("query").value.trim();
+            console.log("query=="+query);
             if (!query) {
                 alert("Please enter a query!");
                 isLoading = false;
@@ -672,8 +688,8 @@ window.onload = function() {
                         recordCountDiv.innerHTML = "";
                         recordCountDiv.innerHTML = `<strong>    Record count:</strong> ${data.Data.length}, <strong>Total count:</strong> ${data.RecordCount}<strong>`;
 
-                        console.log('totalRecords::' + totalRecords);
-                        console.log('totalPages::' + totalPages);
+                        //console.log('totalRecords::' + totalRecords);
+                        //console.log('totalPages::' + totalPages);
 
                         requestBodySelect = requestBody.Select;
                         requestBodyObjectName = requestBody.ObjectName;
@@ -771,7 +787,7 @@ window.onload = function() {
         function populateResultsTable1() {
             const resultsBody = document.getElementById("resultsBody");
 
-            console.log('populateResultsTable');
+            //console.log('populateResultsTable');
 
             const startIdx = (currentPage - 1) * pageSize;
             const endIdx = startIdx + pageSize;
@@ -808,8 +824,8 @@ window.onload = function() {
         }
 
         function nextPage() {
-            console.log('currentPage::' + currentPage);
-            console.log('totalPages::' + totalPages);
+            //.log('currentPage::' + currentPage);
+            //console.log('totalPages::' + totalPages);
             if (currentPage < totalPages) {
                 currentPage++;
 
@@ -849,11 +865,11 @@ window.onload = function() {
 
 
         document.getElementById('pageSizes').addEventListener('change', function() {
-            console.log(this.value);
+            //console.log(this.value);
             const selectedValue = parseInt(this.value, 10);
-            console.log('selectedValue1::' + selectedValue);
+            //console.log('selectedValue1::' + selectedValue);
             if (!isNaN(selectedValue) && selectedValue > 0) {
-                console.log('selectedValue2::' + selectedValue);
+                //console.log('selectedValue2::' + selectedValue);
                 pageSize = selectedValue;
                 totalPages = Math.ceil(totalRecords / pageSize);
                 currentPage = 1;
@@ -931,13 +947,13 @@ window.onload = function() {
                         let headerData = [];
                         //const headerData = data.Data.FieldMetadata.map(item => item.FieldName);
                         data.Data.FieldMetadata.forEach(item =>{
-                            if(item.DataType == 'Lookup'){
+                            if(item.DataType == 'Lookup' || item.DataType == 'Owner'){
                                 headerData.push(item.FieldName+'.Id');
                                 headerData.push(item.FieldName+'.Name');
                             }
                             else{
                                 headerData.push(item.FieldName);
-                            }     
+                            }    
                         });
                         headerData.unshift("#");
 
@@ -973,15 +989,15 @@ window.onload = function() {
                             tableColumns.forEach(key => {
 
                                 if(key.includes('.Id') || key.includes('.Name')){
-                                    console.log(key);
+                                    //.log(key);
                                     var parts = key.split('.');
                                     if(parts[1] == 'Id' && item[parts[0]]){
                                         item[key] = item[parts[0]].Id;
-                                        console.log( item[key]);
+                                        //console.log( item[key]);
                                     }
                                     if(parts[1] == 'Name' && item[parts[0]]){
                                         item[key] = item[parts[0]].Name;
-                                        console.log( item[key]);
+                                        //console.log( item[key]);
                                     }
                                     
                                 }
@@ -1067,105 +1083,173 @@ window.onload = function() {
                     console.error(`Error fetching fields API: ${error}`);
                 });
         } else {
-            const resultsBody = document.getElementById("resultsBody");
-            resultsBody.innerHTML = "";
-            const resultsTable = document.getElementById("resultsTable");
 
-            const headerRow = resultsTable.querySelector("thead tr");
-            headerRow.innerHTML = "";
-            console.log('tableColumns::' + tableColumns);
-            if (!tableColumns.includes('#')) {
-                tableColumns.unshift("#");
-            }
+            const fieldsApiUrl = `https://${platformUri}/api/schema/v1/objects/${obName}`;
 
-            console.log('tableColumns::' + tableColumns);
-            if (dataM.length > 0) {
-
-                if (noId) {
-                    const index = tableColumns.indexOf('Id');
-                    if (index > -1) {
-                        tableColumns.splice(index, 1);
-                    }
+            fetch(fieldsApiUrl, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'accept': 'application/json'
                 }
-                const headers = tableColumns;
-                headers.forEach((header, index) => {
-                    const th = document.createElement("th");
-                    th.textContent = header;
-                    th.addEventListener('click', () => {
-                        toggleColumnHighlight(index);
-                    });
-                    headerRow.appendChild(th);
-                });
-            }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.Success) {
 
-            dataM.forEach(item => {
-                const row = document.createElement("tr");
-                tableColumns.forEach(key => {
-                    const cell = document.createElement("td");
-                    if (key === '#') {
-                        const recordUrl = document.createElement("a");
-                        recordUrl.target = "_blank";
-                        recordUrl.href = `https://${platformUri}/admin/entity/${obName}/detail/${item['Id']}`;
-                        recordUrl.textContent = "Open";
+                    let headerData = [];
+                    //const headerData = data.Data.FieldMetadata.map(item => item.FieldName);
+                    //console.log("data.Data.FieldMetadata="+JSON.stringify(data.Data.FieldMetadata));
+                    //const selectedFieldNames = data.Data.FieldMetadata.filter(item => tableColumns.includes(item.FieldName));
 
-                        cell.style.width = '40px';
-
-                        const customMenuUl = document.getElementById("customMenu");
-
-                        recordUrl.addEventListener('contextmenu', function(event) {
-                            event.preventDefault();
-                            customMenuUl.style.top = `${event.pageY}px`;
-                            customMenuUl.style.left = `${event.pageX}px`;
-
-                            customMenuUl.style.display = 'block';
-                            customMenuUl.style.paddingLeft = '15px';
-
-                            document.getElementById('menuOption1').onclick = () => {
-                                let link = recordUrl.href;
-                                if (obName === 'Agreement') {
-                                    link = `https://${platformUri}/clm/detail/${item['Id']}`;
-                                }
-                                if (obName === 'Proposal') {
-                                    link = `https://${platformUri}/cpq/quotes/${item['Id']}`;
-                                }
-
-                                window.open(link, '_blank');
-                                customMenuUl.style.display = 'none';
-                            };
-
-                            document.getElementById('menuOption2').onclick = () => {
-                                const link = recordUrl.href;
-                                window.open(link, '_blank');
-                                customMenuUl.style.display = 'none';
-                            };
-
-                            document.getElementById('menuOption3').onclick = () => {
-                                const link = recordUrl.href;
-                                navigator.clipboard.writeText(link).then(() => {
-                                    alert('Link copied to clipboard!');
-                                }).catch(err => {
-                                    console.error('Error copying link: ', err);
-                                });
-                                customMenuUl.style.display = 'none';
-                            };
-
-                        });
-
-                        cell.appendChild(recordUrl);
-
-                    } else if (item[key] === undefined) {
-                        cell.textContent = '';
-                    } else {
-                        if (item[key] && typeof item[key] === 'object' && !Array.isArray(item[key])) {
-                            cell.textContent = JSON.stringify(item[key]);
-                        } else {
-                            cell.textContent = item[key];
+                    let selectedFieldNames =[];
+                    tableColumns.forEach(column =>{
+                        const selectedFieldName = data.Data.FieldMetadata.find(item => item.FieldName === column);
+                        if(selectedFieldName !== undefined){
+                            selectedFieldNames.push(selectedFieldName);
                         }
+                    })
+
+                    //console.log("selectedFieldNames="+JSON.stringify(selectedFieldNames));
+
+                    selectedFieldNames.forEach(item =>{
+
+                        if(item.DataType == 'Lookup' || item.DataType == 'Owner'){
+                            headerData.push(item.FieldName+'.Id');
+                            headerData.push(item.FieldName+'.Name');
+                        }
+                        else{
+                            headerData.push(item.FieldName);
+                        }
+                    });
+
+                    tableColumns = headerData;
+
+                    const resultsBody = document.getElementById("resultsBody");
+                    resultsBody.innerHTML = "";
+                    const resultsTable = document.getElementById("resultsTable");
+
+                    const headerRow = resultsTable.querySelector("thead tr");
+                    headerRow.innerHTML = "";
+                    
+                    if (!tableColumns.includes('#')) {
+                        tableColumns.unshift("#");
                     }
-                    row.appendChild(cell);
-                });
-                resultsBody.appendChild(row);
-            });
+                    console.log('tableColumns::' + tableColumns);
+
+                    if (dataM.length > 0) {
+
+                        if (noId) {
+                            const index = tableColumns.indexOf('Id');
+                            if (index > -1) {
+                                tableColumns.splice(index, 1);
+                            }
+                        }
+                        const headers = tableColumns;
+                        headers.forEach((header, index) => {
+                            const th = document.createElement("th");
+                            th.textContent = header;
+                            th.addEventListener('click', () => {
+                                toggleColumnHighlight(index);
+                            });
+                            headerRow.appendChild(th);
+                        });
+                    }
+
+                    dataM.forEach(item => {
+                        const row = document.createElement("tr");
+                        tableColumns.forEach(key => {
+
+                            if(key.includes('.Id') || key.includes('.Name')){
+                                //console.log(key);
+                                var parts = key.split('.');
+                                if(parts[1] == 'Id' && item[parts[0]]){
+                                    item[key] = item[parts[0]].Id;
+                                    //.log( item[key]);
+                                }
+                                if(parts[1] == 'Name' && item[parts[0]]){
+                                    item[key] = item[parts[0]].Name;
+                                    //console.log( item[key]);
+                                }
+                                
+                            }
+
+                            const cell = document.createElement("td");
+        
+                            if (key === '#') {
+                                const recordUrl = document.createElement("a");
+                                recordUrl.target = "_blank";
+                                recordUrl.href = `https://${platformUri}/admin/entity/${obName}/detail/${item['Id']}`;
+                                recordUrl.textContent = "Open";
+        
+                                cell.style.width = '40px';
+        
+                                const customMenuUl = document.getElementById("customMenu");
+        
+                                recordUrl.addEventListener('contextmenu', function(event) {
+                                    event.preventDefault();
+                                    customMenuUl.style.top = `${event.pageY}px`;
+                                    customMenuUl.style.left = `${event.pageX}px`;
+        
+                                    customMenuUl.style.display = 'block';
+                                    customMenuUl.style.paddingLeft = '15px';
+        
+                                    document.getElementById('menuOption1').onclick = () => {
+                                        let link = recordUrl.href;
+                                        if (obName === 'Agreement') {
+                                            link = `https://${platformUri}/clm/detail/${item['Id']}`;
+                                        }
+                                        if (obName === 'Proposal') {
+                                            link = `https://${platformUri}/cpq/quotes/${item['Id']}`;
+                                        }
+        
+                                        window.open(link, '_blank');
+                                        customMenuUl.style.display = 'none';
+                                    };
+        
+                                    document.getElementById('menuOption2').onclick = () => {
+                                        const link = recordUrl.href;
+                                        window.open(link, '_blank');
+                                        customMenuUl.style.display = 'none';
+                                    };
+        
+                                    document.getElementById('menuOption3').onclick = () => {
+                                        const link = recordUrl.href;
+                                        navigator.clipboard.writeText(link).then(() => {
+                                            alert('Link copied to clipboard!');
+                                        }).catch(err => {
+                                            console.error('Error copying link: ', err);
+                                        });
+                                        customMenuUl.style.display = 'none';
+                                    };
+        
+                                });
+        
+                                cell.appendChild(recordUrl);
+        
+                            } else if (item[key] === undefined) {
+                                cell.textContent = '';
+                            } else {
+                                if (item[key] && typeof item[key] === 'object' && !Array.isArray(item[key])) {
+                                    cell.textContent = JSON.stringify(item[key]);
+                                } else {
+                                    cell.textContent = item[key];
+                                }
+                            }
+                            console.log("Cell="+JSON.stringify(cell));
+                            row.appendChild(cell);
+                        });
+                        console.log("row="+JSON.stringify(row));
+                        resultsBody.appendChild(row);
+                    });
+                }
+            })
+
         }
 
         resultsTable.style.display = "table";
@@ -1176,7 +1260,7 @@ window.onload = function() {
 
     function checkIfColumnsSelected() {
 
-        console.log('selectedColumns.size:' + selectedColumns.size);
+        //console.log('selectedColumns.size:' + selectedColumns.size);
 
         if (selectedColumns.size === 0) {
             copyTableAsExcel();
@@ -1262,6 +1346,7 @@ window.onload = function() {
     }
 
     function exportQueryResultAsExcel(dataM) {
+        console.log(JSON.stringify(dataM));
         const downloadingDiv = document.getElementById("downloadingDiv");
         const flattenedData = dataM.map(item => flattenObject(item));
 
@@ -1277,13 +1362,25 @@ window.onload = function() {
         }, 1000);
     }
 
-    function flattenObject(obj, prefix = "") {
+    /*function flattenObject1(obj, prefix = "") {
         return Object.keys(obj).reduce((acc, key) => {
             const newKey = prefix ? `${prefix}_${key}` : key;
             if (obj[key] && typeof obj[key] === "object" && !Array.isArray(obj[key])) {
                 acc[newKey] = JSON.stringify(obj[key]);
             } else {
                 acc[newKey] = obj[key];
+            }
+            return acc;
+        }, {});
+    }*/
+
+    function flattenObject(obj, prefix = "") {
+        return Object.keys(obj).reduce((acc, key) => {
+            const newKey = prefix ? `${prefix}.${key}` : key;
+            if (obj[key] && typeof obj[key] === "object" && !Array.isArray(obj[key])) {
+                Object.assign(acc, flattenObject(obj[key], newKey));
+            } else if(obj[key]){
+                acc[newKey] = Array.isArray(obj[key]) ? obj[key].join(", ") : obj[key];
             }
             return acc;
         }, {});
@@ -1338,7 +1435,7 @@ window.onload = function() {
             const orderByParts = orderByMatch[1].trim().split(" ");
             requestBody.Sort.FieldName = orderByParts[0];
             requestBody.Sort.OrderBy = orderByParts[1].toLowerCase() === 'asc' ? 'Ascending' : 'Descending';
-            console.log(requestBody.Sort);
+            //console.log(requestBody.Sort);
         }
 
         if (limitMatch) {
@@ -1466,8 +1563,8 @@ window.onload = function() {
                             }
                         }
 
-                        console.log('headers::' + headers);
-                        console.log('rows::' + rows);
+                        //console.log('headers::' + headers);
+                        //console.log('rows::' + rows);
 
                         openHeaderSelectionPopup(headers, rows, obName);
 
@@ -1550,7 +1647,7 @@ window.onload = function() {
         form.style.flexWrap = "wrap";
 
         const action = getSelectedValueForAction();
-        console.log('action::' + action);
+        //.log('action::' + action);
 
         const chunkSize = 10;
         for (let i = 0; i < headers.length; i += chunkSize) {
@@ -1634,7 +1731,23 @@ window.onload = function() {
                 );
             });
 
-            populateResultsTable(filteredData, selectedHeaders, obName, false);
+            selectedHeaders.forEach((item, index) => {
+                if (item.endsWith(".Id")) {
+                    selectedHeaders.splice(index, 1);
+                }
+            });
+
+            selectedHeaders.forEach((item, index) => {
+                if(item.endsWith(".Name")){
+                    const baseField = item.split(".Name")[0];
+                    selectedHeaders[index] = baseField;
+                }
+            });
+
+
+            const transformedData = transformDataDynamic(filteredData);
+
+            populateResultsTable(transformedData, selectedHeaders, obName, false);
 
             document.getElementById("saveImportButton").disabled = false;
             //document.getElementById("exportButton").disabled = true;
@@ -1666,13 +1779,55 @@ window.onload = function() {
         document.body.appendChild(popup);
     }
 
+    function transformDataDynamic(data) {
+        return data.map(item => {
+            const transformedItem = { ...item };
+    
+            Object.keys(item).forEach(key => {
+                // Check for patterns ending with '.Id' or '.Name'
+                if (key.endsWith(".Id")) {
+                    const baseField = key.split(".Id")[0]; // Get the base field name (e.g., 'CreatedBy')
+    
+                    // Check if the corresponding '.Name' field exists
+                    const nameKey = `${baseField}.Name`;
+                    if (item[key] && item[nameKey]) {
+                        // Create a combined object for the base field
+                        transformedItem[baseField] = {
+                            Id: item[key],
+                            Name: item[nameKey]
+                        };
+                    }
+                    else if(item[key] && (item[nameKey] == undefined || item[nameKey] == "" || item[nameKey] == null)){
+                        transformedItem[baseField] = {
+                            Id: item[key]
+                        };
+                    }
+                    else if(item[nameKey] && (item[key] == undefined || item[key] == "" || item[key] == null)){
+                        transformedItem[baseField] = {
+                            Id: "",
+                            Name: item[nameKey]
+                        };
+                    }
+                    else{
+                        transformedItem[baseField] = null;
+                    }
 
+                    // Remove the original .Id and .Name fields
+                    delete transformedItem[key];
+                    delete transformedItem[nameKey];
+                }
+            });
+    
+            return transformedItem;
+        });
+    }
 
     function getSelectedValueForAction() {
-        const selectedRadio = document.querySelector('input[name="actionOption"]:checked');
-        if (selectedRadio) {
-            console.log("Selected action:", selectedRadio.value);
-            return selectedRadio.value;
+        var select = document.getElementById("dmlOperations");
+        var selectedValue = select.value;
+        if (selectedValue != undefined) {
+            console.log("Selected action:", selectedValue);
+            return selectedValue;
         } else {
             console.log("No option selected");
             return null;
@@ -1680,107 +1835,158 @@ window.onload = function() {
     }
 
     document.getElementById("saveImportButton").addEventListener("click", () => {
-        const action = getSelectedValueForAction();
-        if (action) {
+        try {
+            
+            const action = getSelectedValueForAction();
+            if (action) {
 
-            const table = document.getElementById("resultsTable");
-            const headers = [...table.querySelectorAll("thead th")].slice(1).map(th => th.textContent.trim());
-            const rows = [...table.querySelectorAll("tbody tr")];
+                const table = document.getElementById("resultsTable");
+                const headers = [...table.querySelectorAll("thead th")].slice(1).map(th => th.textContent.trim());
+                const rows = [...table.querySelectorAll("tbody tr")];
 
-            if (!headers.includes('Id') && action !== 'insert') {
-                alert("Column 'Id' is required for " + action + " operation.");
-                return;
-            }
+                if (!headers.includes('Id') && action !== 'insert') {
+                    alert("Column 'Id' is required for " + action + " operation.");
+                    return;
+                }
 
-            const jsonData = rows.map(row => {
-                const cells = [...row.querySelectorAll("td")].slice(1);
-                const rowData = {};
+            
+                const jsonData = rows.map(row => {
+                    const cells = [...row.querySelectorAll("td")].slice(1);
+                    const rowData = {};
 
-                headers.forEach((header, index) => {
-                    rowData[header] = cells[index].textContent.trim();
+                    headers.forEach((header, index) => {
+                        rowData[header] = cells[index].textContent.trim();
+                    });
+
+                    return rowData;
                 });
 
-                return rowData;
-            });
+                headers.forEach((item, index) => {
+                    if (item.endsWith(".Id")) {
+                        headers.splice(index, 1);
+                    }
+                });
 
-            const jsonString = JSON.stringify(jsonData);
-            console.log(jsonString);
+                headers.forEach((item, index) => {
+                    if(item.endsWith(".Name")){
+                        const baseField = item.split(".Name")[0];
+                        headers[index] = baseField;
+                    }
+                });
 
-            let method = (action === "insert") ? "POST" :
-                (action === "update") ? "PUT" :
-                (action === "delete") ? "DELETE" : "ERROR";
+                const transformedData = transformDataDynamic(jsonData);
 
-            sendBatchedUpdates(jsonData, method);
-        } else {
-            alert('Please select any action : Update, Insert or Delete.');
+                const jsonString = JSON.stringify(transformedData);
+                //console.log(jsonString);
+
+                let method = (action === "insert") ? "POST" :
+                    (action === "update") ? "PUT" :
+                    (action === "delete") ? "DELETE" : "ERROR";
+
+                sendBatchedUpdates(transformedData, method);
+            } else {
+                alert('Please select any action : Update, Insert or Delete.');
+            }
+
+        } catch (error) {
+                alert('Error::'+error);
         }
 
+    });
+
+    document.getElementById("importOpenButton").addEventListener("click", () => {
+        handleVisibilityForImport("none");
+    });
+
+    function handleVisibilityForImport(disp){
+
+        isImportOpen = true;
+        document.getElementById("queryHeader").style.display = disp;
+        document.getElementById("FieldsDropDown").style.display = disp;
+        document.getElementById("selectfieldsDiv").style.display = disp;
+
+        document.getElementById("importComponentsDiv").style.display = (disp == "block") ? "none" : "block";
+
+    }
+
+    document.getElementById("closeImportButton").addEventListener("click", () => {
+        
+        handleVisibilityForImport("block");
+        resetInitials();
+        isImportOpen = false;
     });
 
     let currentIndex = 0;
 
     function sendBatchedUpdates(data, method) {
-        const batchSize = 100;
 
-        const obName = document.getElementById("objectDropDownInput").value || '';
+        if(method != "ERROR"){
+            const batchSize = 100;
 
-        if (obName == '') {
-            alert("Please select the Object before you import !");
+            const obName = document.getElementById("objectDropDownInput").value || '';
+
+            if (obName == '') {
+                alert("Please select the Object before you import !");
+                return;
+            }
+
+            const saveButton = document.getElementById("saveImportButton");
+            saveButton.disabled = true;
+
+            const exportButtonD = document.getElementById("exportButton");
+            exportButtonD.disabled = false;
+
+            const payLoadResponseParam = method === 'DELETE' ? 'IncludeDeleteResultStatus' : 'IncludeRecordPayloadInResponse'
+            data = method === 'DELETE' ? data.map(item => item.Id) : data;
+
+            function sendBatch(batch) {
+
+                const apiUrl = `https://${platformUri}/api/data/v1/objects/${obName}/bulk?${payLoadResponseParam}=true`;
+
+                return fetch(apiUrl, {
+                        method: method,
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`,
+                            'accept': '*/*',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(batch)
+                    })
+                    .then(response => {
+                        return response.json();
+                    })
+                    .then(responseData => {
+                        updateTableWithStatus(responseData, batch, method);
+                        return responseData;
+                    })
+                    .catch(error => {
+                        console.error("Error updating batch:", error);
+                        updateTableWithStatus(null, batch, method, error);
+
+                        saveButton.disabled = false;
+
+                    });
+            }
+
+            async function processBatches(startIndex = 0) {
+                const endIndex = startIndex + batchSize;
+                const batch = data.slice(startIndex, endIndex);
+
+                if (batch.length > 0) {
+                    await sendBatch(batch);
+                    processBatches(endIndex);
+                } else {
+                    console.log("All batches have been processed.");
+                }
+            }
+
+
+            processBatches();
+        }
+        else{
+            alert("Selected operation is not allowed !");
             return;
         }
-
-        const saveButton = document.getElementById("saveImportButton");
-        saveButton.disabled = true;
-
-        const exportButtonD = document.getElementById("exportButton");
-        exportButtonD.disabled = false;
-
-        const payLoadResponseParam = method === 'DELETE' ? 'IncludeDeleteResultStatus' : 'IncludeRecordPayloadInResponse'
-        data = method === 'DELETE' ? data.map(item => item.Id) : data;
-
-        function sendBatch(batch) {
-
-            const apiUrl = `https://${platformUri}/api/data/v1/objects/${obName}/bulk?${payLoadResponseParam}=true`;
-
-            return fetch(apiUrl, {
-                    method: method,
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                        'accept': '*/*',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(batch)
-                })
-                .then(response => {
-                    return response.json();
-                })
-                .then(responseData => {
-                    updateTableWithStatus(responseData, batch, method);
-                    return responseData;
-                })
-                .catch(error => {
-                    console.error("Error updating batch:", error);
-                    updateTableWithStatus(null, batch, method, error);
-
-                    saveButton.disabled = false;
-
-                });
-        }
-
-        async function processBatches(startIndex = 0) {
-            const endIndex = startIndex + batchSize;
-            const batch = data.slice(startIndex, endIndex);
-
-            if (batch.length > 0) {
-                await sendBatch(batch);
-                processBatches(endIndex);
-            } else {
-                console.log("All batches have been processed.");
-            }
-        }
-
-
-        processBatches();
     }
 
     function updateTableWithStatus(responseData, batch, method, error = null) {
@@ -1795,15 +2001,15 @@ window.onload = function() {
             headerNames = headerNames.filter(item => item !== 'Id');
 
             const tableColumns = initialHeaders.concat(headerNames);
-            console.log('headers:::::' + tableColumns);
+            //console.log('headers:::::' + tableColumns);
             const obName = document.getElementById("objectDropDownInput").value;
-            console.log('objectDropDownInput:::::' + obName);
-            console.log('responseData:::::' + responseData);
+            //console.log('objectDropDownInput:::::' + obName);
+            //console.log('responseData:::::' + responseData);
             populateResultsTable(responseData.Data, tableColumns, obName, false);
-            console.log('if loop');
+            //console.log('if loop');
             updateTableWithStatusBatch(responseData, responseData.Data, error);
         } else {
-            console.log('else loop');
+            //console.log('else loop');
             updateTableWithStatusBatch(responseData, batch, error);
         }
 
@@ -1829,15 +2035,15 @@ window.onload = function() {
 
         batch.forEach(record => {
 
-            console.log(record);
+            //console.log(record);
 
             const row = [...table.querySelectorAll("tbody tr")].find(
                 tr => (tr.querySelector("td").nextElementSibling.textContent.trim() === record.Id || tr.querySelector("td").nextElementSibling.textContent.trim() === record)
             );
 
-            console.log('row::' + record.Id);
+            //console.log('row::' + record.Id);
 
-            console.log('row::' + row);
+            //console.log('row::' + row);
 
             if (row) {
                 const statusCell = row.querySelector(".status-cell");
@@ -1929,7 +2135,7 @@ window.onload = function() {
         }
 
         selectedColumns.forEach(value => {
-            console.log('selectedColumns:' + value);
+            //console.log('selectedColumns:' + value);
         });
 
     }
@@ -1943,7 +2149,7 @@ window.onload = function() {
                 const rowData = Array.from(selectedColumns).map(index => {
                     return index === 0 ? row.cells[index].innerHTML : row.cells[index].textContent;
                 });
-                console.log('rowData:' + rowData);
+                //console.log('rowData:' + rowData);
                 dataToCopy.push(rowData.join('\t'));
             }
         });
@@ -1954,6 +2160,11 @@ window.onload = function() {
     }
 
     document.getElementById('openImportDataPopupButton').addEventListener('click', () => {
+        const obName = document.getElementById("objectDropDownInput").value || '';
+        if (obName == '') {
+            alert("Please select the Object before you import !");
+            return;
+        }
         document.getElementById('pastePopup').style.display = 'block';
         document.getElementById('pasteArea').innerHTML = 'Click here & paste !';
     });
@@ -1962,11 +2173,15 @@ window.onload = function() {
         document.getElementById('pastePopup').style.display = 'none';
     });
 
-    document.getElementById('pasteArea').addEventListener('paste', (event) => {
+    /*document.getElementById('pasteArea').addEventListener('paste', (event) => {
         event.preventDefault();
 
-        const clipboardData = event.clipboardData.getData('text');
-        const rows = clipboardData.trim().split('\n').map(row => row.split('\t'));
+        let clipboardData = event.clipboardData.getData('text');
+        clipboardData = clipboardData + "\r\n";
+        console.log('clipboardData:::'+JSON.stringify(clipboardData));
+        const rows = clipboardData.trim().split('\r\n').map(row => row.split('\t'));
+
+        console.log('rows:::'+JSON.stringify(rows));
 
         const table = document.createElement('table');
         table.id = 'pasteAreaTable';
@@ -2001,7 +2216,59 @@ window.onload = function() {
         const pasteArea = document.getElementById('pasteArea');
         pasteArea.innerHTML = '';
         pasteArea.appendChild(table);
-    });
+    });*/
+
+    document.getElementById('pasteArea').addEventListener('paste', (event) => {
+        event.preventDefault();
+    
+        let clipboardData = event.clipboardData.getData('text');
+        const rows = clipboardData
+            .trim()
+            .split('\r\n')
+            .filter(row => row.trim() !== '')
+            .map(row => row.split('\t'));
+    
+
+        const numColumns = rows[0].length;
+    
+        rows.forEach(row => {
+            while (row.length < numColumns) {
+                row.push('');
+            }
+        });
+    
+        console.log('Parsed Clipboard Data:', rows);
+    
+        const table = document.createElement('table');
+        table.id = 'pasteAreaTable';
+        table.style.width = '100%';
+        table.style.borderCollapse = 'collapse';
+        table.style.whiteSpace = 'nowrap';
+        table.style.textAlign = 'left';
+        table.style.fontFamily = '"Segoe UI", Tahoma, sans-serif';
+        table.style.fontSize = '75%';
+        table.style.color = '#707070';
+    
+        rows.forEach((rowData, rowIndex) => {
+            const row = document.createElement('tr');
+            rowData.forEach((cellData) => {
+                const cell = document.createElement('td');
+                cell.textContent = cellData;
+                cell.style.border = '1px solid #ccc';
+                cell.style.padding = '2px';
+                row.appendChild(cell);
+            });
+            if (rowIndex === 0) {
+                row.style.backgroundColor = '#f0f0f0';
+                row.style.fontWeight = 'bold';
+            }
+            table.appendChild(row);
+        });
+    
+        const pasteArea = document.getElementById('pasteArea');
+        pasteArea.innerHTML = ''; 
+        pasteArea.appendChild(table);
+    });    
 
     document.getElementById('saveButton').addEventListener('click', () => {
         selectedColumns = new Set();
@@ -2030,15 +2297,31 @@ window.onload = function() {
     function addDataToMainTable(data) {
         const table = document.getElementById('resultsTable');
 
-        console.log(data);
+        //console.log(data);
 
         const tableColumnsT = data[0].map(header => header.trim());
         const dataT = convertArrayToObjects(data);
         const obName = document.getElementById("objectDropDownInput").value;
-        console.log(data);
+        console.log(dataT);
         console.log(tableColumnsT);
         if (dataT && tableColumnsT) {
-            populateResultsTable(dataT, tableColumnsT, obName, false);
+            
+            tableColumnsT.forEach((item, index) => {
+                if (item.endsWith(".Id")) {
+                    tableColumnsT.splice(index, 1);
+                }
+            });
+
+            tableColumnsT.forEach((item, index) => {
+                if(item.endsWith(".Name")){
+                    const baseField = item.split(".Name")[0];
+                    tableColumnsT[index] = baseField;
+                }
+            });
+
+
+            const transformedData = transformDataDynamic(dataT);
+            populateResultsTable(transformedData, tableColumnsT, obName, false);
         } else {
             alert('Data is not in correct format !');
         }

@@ -431,7 +431,8 @@ function filterTable() {
     if (
       item.name.toLowerCase().includes(searchTerm) ||
       (item.value && item.value.toString().toLowerCase().includes(searchTerm)) ||
-      item.type.toLowerCase().includes(searchTerm)
+      item.type.toLowerCase().includes(searchTerm) ||
+      item.displayName.toLowerCase().includes(searchTerm)
     ) {
       filteredData.push(item);
     }

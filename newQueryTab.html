@@ -18,6 +18,12 @@
       font-size: 16px;
     }
 
+    select#dmlOperations {
+      margin-left: 10px;
+      padding: 3px;
+      font-size: 15px;
+    }
+
     #ObjectDropDown ul {
       max-height: 150px;
       overflow-y: auto; 
@@ -33,7 +39,7 @@
       width: 100%;
     }
 
-    #exportButton, #copyAsExcelButton, #exportAsExcelButton, #importAsExcelButton, #saveImportButton, #exportAsExcelQueryButton, #openImportDataPopupButton, #saveButton, #closeButton, #prevPageButton, #nextPageButton {
+    #exportButton, #copyAsExcelButton, #exportAsExcelButton, #importAsExcelButton, #exportAsExcelQueryButton, #openImportDataPopupButton, #saveButton, #closeButton, #prevPageButton, #nextPageButton, #importOpenButton {
       display: inline;
       margin: 0 auto;
       padding: 5px 15px;
@@ -49,13 +55,29 @@
       text-align: end;
     }
 
-    #exportButton:hover, #copyAsExcelButton:hover, #exportAsExcelButton:hover, #importAsExcelButton:hover, #saveImportButton:hover, #exportAsExcelQueryButton:hover, #openImportDataPopupButton:hover, #saveButton:hover, #closeButton:hover, #prevPageButton:hover, #nextPageButton:hover {
+    #exportButton:hover, #copyAsExcelButton:hover, #exportAsExcelButton:hover, #importAsExcelButton:hover, #exportAsExcelQueryButton:hover, #openImportDataPopupButton:hover, #saveButton:hover, #closeButton:hover, #prevPageButton:hover, #nextPageButton:hover, #importOpenButton:hover {
       background-color: #0056b3;
     }
 
     #saveImportButton:disabled, #exportButton:disabled, #prevPageButton:disabled, #nextPageButton:disabled {
       background-color: #ccc;
       cursor: not-allowed;
+    }
+
+    #saveImportButton, #closeImportButton{
+      display: inline;
+      margin: 0 auto;
+      padding: 5px 15px;
+      font-size: 16px;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #E6232A; 
+    }
+
+    #saveImportButton:hover, #closeImportButton:hover{
+      background-color: #ac1d22;
     }
 
     #resultsTable {
@@ -294,6 +316,10 @@
     box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); 
     text-align: center;
   }
+
+  .importBtn{
+    margin-left: 20px !important;
+  }
     
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -314,19 +340,20 @@
   <div id="ObjectDropDown"></div>
   <div id="FieldsDropDown"></div>
   <div id="selectfieldsDiv"></div>
-  <div class="radio-container" style="position: absolute; right: 50px;">
-    <label>
-        <input type="radio" name="actionOption" value="update" checked="true"> Update
-    </label>
-    <label>
-        <input type="radio" name="actionOption" value="insert"> Insert
-    </label>
-    <label>
-        <input type="radio" name="actionOption" value="delete"> Delete
-    </label>
+  <div id="importComponentsDiv">
+    <select name="dmlOperations" id="dmlOperations" class="importBtn">
+      <option value="update">Update</option>
+      <option value="insert">Insert</option>
+      <option value="delete">Delete</option>
+    </select>
+    <button title="Import copied data" class="btn importBtn" id="openImportDataPopupButton">Import Copied Data</button>
+    <button title="Import excel" class="btn" id="importAsExcelButton">Import excel</button>
+    <button title="Click this to import data" class="btn" id="saveImportButton"><i class="fa fa-save"></i> Import</button>
+    <button title="Close" class="btn" id="closeImportButton"><i class="fa fa-close"></i> Close</button>
+  </div>
+  
 </div>
-</div>
-<div>
+<div id="queryHeader">
   <div> 
     <textarea id="query" spellcheck="false" style="max-height: 85px;"></textarea>
     <div id="autocomplete-list" class="autocomplete-suggestions"></div> 
@@ -346,10 +373,8 @@
       </div>
       <button title="Copy as Excel" class="btn" id="copyAsExcelButton"><i class="fa fa-copy"></i></button>
       <button title="Export as Excel" class="btn" id="exportAsExcelButton"><i class="fa fa-cloud-download"></i></button>
-      <button title="Import copied data" class="btn" id="openImportDataPopupButton"><i class="fa fa-cloud-upload"></i></button>
       <button title="Export from query" class="btn" id="exportAsExcelQueryButton"><i class="fa fa-download"></i></button>
-      <button title="Import excel" class="btn" id="importAsExcelButton"><i class="fa fa-upload"></i></button>
-      <button title="Save" class="btn" id="saveImportButton"><i class="fa fa-save"></i></button>
+      <button title="Import" class="btn" id="importOpenButton">Import</button>
 
     </div>
   </div>

@@ -1,4 +1,4 @@
-if (window.location.hostname.includes("congacloud.com") || window.location.hostname.includes("congacloud.eu") || window.location.hostname.includes("congacloud.au") || window.location.hostname.includes("congacloud.io")) {
+if (window.location.hostname.includes("congacloud.com") || window.location.hostname.includes("congacloud.eu") || window.location.hostname.includes("congacloud.au") || window.location.hostname.includes("congacloud.io") || window.location.hostname.includes("congacloud.na")) {
 
   const pathSegments = window.location.pathname.split('/').filter(Boolean);
   if (!pathSegments.includes('swagger')) {
