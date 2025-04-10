@@ -1,0 +1,212 @@
+<html>
+<head>
+  <title>Conga RLM Data Inspector</title>
+  <link rel="icon" type="image/svg+xml" href="conga_logo.svg">
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 15px;
+    }
+    th, td {
+      border: 1px solid #a7a7a787;
+      padding: 4px 5px;
+    }
+    th {
+      background-color: #f2f2f2;
+      text-align: left;
+      padding: 0px 5px;
+      font-weight: 600;
+    }
+
+    .header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+    #objectName {
+      font-size: 19px;
+    }
+    #searchBox {
+      padding: 5px;
+      font-size: 14px;
+    }
+	.headerTop {
+		font-size: 24px;
+		text-align: center;
+		color: black;
+		background-color: #f0f0f0;
+    z-index: 1000;
+		
+	}
+	#head{
+	   position: sticky;
+      top: 0;
+      z-index: 1000;
+	  background-color: white;
+	}
+
+  #messageDiv {
+    position: fixed;
+    top: -50px;
+    left: 0;
+    width: 100%;
+    background-color: #ffcc00;
+    color: #ffffff;
+    padding: 10px;
+    font-size: 16px;
+    text-align: center;
+    z-index: 1001;
+    transition: top 0.5s ease-in-out;
+  }
+
+  #superHeader{
+    background-color: #eef4f8;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  body{
+    margin: 0px;
+  }
+
+  .container{
+    margin: 15px 10px;
+  }
+
+  #logoText{
+    font-size: 1.2rem;
+    margin-left: 3px;
+  }
+
+  .left {
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .right {
+      display: flex;
+      
+      gap: 10px;
+  }
+  .box {
+    border: 1px solid #000;
+    padding: 10px;
+    width: 100px;
+    text-align: center;
+  }
+
+  #OpenInODE,#OpenInApp{
+    margin-top: 5px;
+  }
+  #OpenInODE a, #OpenInApp a{
+    font-size: 15px;
+  }
+  /* Style for the button */
+.dropdown-btn {
+  background-color: #fff;
+  color: #706e6b;
+  padding: 2px 5px;
+  border: 1px solid #dddbda;
+  cursor: pointer;
+  border-radius: .25rem;
+}
+
+/* Style for the dropdown content */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 75px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  right: 1.5%;
+}
+
+/* Style for the list items */
+.dropdown-content a {
+  color: black;
+  padding: 6px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content a:hover {
+  background-color: #ddd;
+  text-decoration: underline;
+}
+
+/* Style for the list */
+.tree ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Style for headers */
+.headerTree {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+/* Style for the + and - buttons */
+.toggleTree {
+  cursor: pointer;
+  border: none;
+  background: #007bff;
+  color: white;
+  border-radius: 3px;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+/* Default content is visible */
+.contentTree {
+  margin-left: 20px;
+}
+
+#userDetailDiv{
+  font-size: 17px;
+  margin-left: 10px;
+}
+
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  
+</head>
+<body>
+  <div id="messageDiv" style="display: none;"></div>
+  <div id="head">
+    <div id="superHeader">
+      <div class="left">
+        <img src="conga_logo.svg" alt="Logo" style="width: 2rem; height: 25px;">
+        <div id="logoText">Conga RLM Data Inspector</div>
+      </div>
+      <div class="right">
+        <div id="objectName"></div>
+      </div>
+    
+    </div>  
+    <div class="container">	
+      <div class="header">
+        <div class="left">
+          <div id="userDropDown"></div>
+          <div id="userDetailDiv"></div>
+        </div>
+        <div class="right">
+          <div id="OpenInODE"></div>
+          
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  <div class="container">	
+    <div id="tableDiv"></div>
+  </div>
+  <script src="newUserTab.js"></script>
+</body>
+</html>

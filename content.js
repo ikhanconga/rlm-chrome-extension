@@ -91,6 +91,15 @@ if (window.location.hostname.includes("congacloud.com") || window.location.hostn
     openNewTabButton.style.fontSize = "14px";
     popupDiv.appendChild(openNewTabButton);
 
+    const openUserManagementButton = document.createElement("a");
+    openUserManagementButton.id = "openUserManagementButton";
+    openUserManagementButton.textContent = "User Management";
+    openUserManagementButton.href = "javascript:void(0);";
+    openUserManagementButton.style.margin = "0px 0px 0px 10px";
+    openUserManagementButton.style.cursor = "pointer";
+    openUserManagementButton.style.fontSize = "14px";
+    popupDiv.appendChild(openUserManagementButton);
+
     const openQueryConsoleButton = document.createElement("a");
     openQueryConsoleButton.id = "openQueryConsoleBtn";
     openQueryConsoleButton.textContent = "Query Console";
@@ -99,6 +108,15 @@ if (window.location.hostname.includes("congacloud.com") || window.location.hostn
     openQueryConsoleButton.style.cursor = "pointer";
     openQueryConsoleButton.style.fontSize = "14px";
     popupDiv.appendChild(openQueryConsoleButton);
+
+    const copyAccessTokenButton = document.createElement("a");
+    copyAccessTokenButton.id = "copyAccessTokenButton";
+    copyAccessTokenButton.textContent = "Copy Token";
+    copyAccessTokenButton.href = "javascript:void(0);";
+    copyAccessTokenButton.style.margin = "0px 10px 0px 0px";
+    copyAccessTokenButton.style.cursor = "pointer";
+    copyAccessTokenButton.style.fontSize = "14px";
+    popupDiv.appendChild(copyAccessTokenButton);
 
     const openIdLookupButton = document.createElement("a");
     openIdLookupButton.id = "openIdLookupButton";
@@ -129,6 +147,61 @@ if (window.location.hostname.includes("congacloud.com") || window.location.hostn
         
 
     });
+
+    function createDropdownForSettings() {
+
+        const faI = document.createElement('i');
+        faI.classList.add('fa');
+        faI.classList.add('fa-caret-down');
+        // Create the dropdown button
+        const button = document.createElement('button');
+        button.appendChild(faI);
+        button.style.padding = '5px 10px';
+        button.style.borderRadius = '0';
+        button.classList.add('dropdown-btn'); // Add class for styling (optional)
+      
+        // Create the dropdown container (hidden initially)
+        const dropdownContent = document.createElement('div');
+        dropdownContent.classList.add('dropdown-content'); // Add class for styling (optional)
+        dropdownContent.style.right = '0.8%';
+        dropdownContent.style.fontSize = '16px';
+        dropdownContent.style.display = 'none'; // Initially hidden
+      
+        // Create the dropdown list items
+        const item1 = document.createElement('a');
+        item1.textContent = 'Object setup';
+        item1.target = "_blank";
+        item1.href = `https://abcd.html`;
+        //item1.addEventListener('click', () => alert('Option 1 clicked'));
+      
+        /*const item2 = document.createElement('a');
+        item2.textContent = 'Option 2';
+        item2.href = '#';
+        item2.addEventListener('click', () => alert('Option 2 clicked'));
+      
+        const item3 = document.createElement('a');
+        item3.textContent = 'Option 3';
+        item3.href = '#';
+        item3.addEventListener('click', () => alert('Option 3 clicked'));
+        */
+        // Append items to the dropdown content
+        dropdownContent.appendChild(item1);
+        //dropdownContent.appendChild(item2);
+        //dropdownContent.appendChild(item3);
+      
+        // Toggle dropdown visibility when the button is clicked
+        button.addEventListener('click', () => {
+          dropdownContent.style.display = dropdownContent.style.display === 'none' ? 'block' : 'none';
+        });
+      
+        // Append the button and the dropdown content to the document body (or any container)
+        const container = document.createElement('objectDropdown-container'); // You can change this ID
+        container.style.margin='0px 10px';
+        container.appendChild(button);
+        container.appendChild(dropdownContent);
+      
+        return container;
+      }
 
     function keyStartsWith(prefix) {
         for (let i = 0; i < sessionStorage.length; i++) {
@@ -420,6 +493,13 @@ if (window.location.hostname.includes("congacloud.com") || window.location.hostn
 
     }
 
+    function openUserManagementTab(accessToken, objectname) {
+
+        const newTabUrl = chrome.runtime.getURL(`inspectUserData.html?hostname=${encodeURIComponent(window.location.hostname)}&objectType=${encodeURIComponent(objectname)}&at=${encodeURIComponent(accessToken)}`);
+        const newTab1 = window.open(newTabUrl, '_blank');
+
+    }
+
     function openNewTabWithTemplateData(accessToken, objectname, id) {
 
         if (accessToken && objectname && id) {
@@ -696,6 +776,80 @@ if (window.location.hostname.includes("congacloud.com") || window.location.hostn
                             }
                         });
                     });
+                } else {
+                    console.log(`No key starts with "${prefix}" in sessionStorage.`);
+                }
+            } else {
+                document.getElementById('resultDiv').textContent = 'Error: session_key_access_token not found in inputs.txt.';
+            }
+        });
+    });
+
+    copyAccessTokenButton.addEventListener('click', function() {
+        readInputFile((prefix) => {
+            if (prefix) {
+                const key = keyStartsWith(prefix);
+                if (key && key.includes('congacloud')) {
+                    
+                    chrome.runtime.sendMessage({
+                        action: "executeScript",
+                        key: key
+                    }, (response) => {
+                        if (response.error) {
+                            resultDiv.textContent = response.error;
+                            return;
+                        }
+
+                        const accessToken = response.result;
+
+                        if (accessToken) {
+                            
+                            navigator.clipboard.writeText(accessToken).then(() => {
+                                alert('Token copied!');
+                            }).catch(err => {
+                                console.error('Error copying token: ', err);
+                            });
+                            
+                        } else {
+                            resultDiv.textContent = 'Error: Could not retrieve session storage value.';
+                        }
+                    });
+                    
+                } else {
+                    console.log(`No key starts with "${prefix}" in sessionStorage.`);
+                }
+            } else {
+                document.getElementById('resultDiv').textContent = 'Error: session_key_access_token not found in inputs.txt.';
+            }
+        });
+    });
+
+    openUserManagementButton.addEventListener('click', function() {
+        readInputFile((prefix) => {
+            if (prefix) {
+                const key = keyStartsWith(prefix);
+                if (key && key.includes('congacloud')) {
+                    
+                    chrome.runtime.sendMessage({
+                        action: "executeScript",
+                        key: key
+                    }, (response) => {
+                        if (response.error) {
+                            resultDiv.textContent = response.error;
+                            return;
+                        }
+
+                        const accessToken = response.result;
+
+                        if (accessToken) {
+                            sessionStorage.setItem('accessToken', accessToken);
+                            openUserManagementTab(accessToken, "User")
+                            resetDataInspectorView();
+                        } else {
+                            resultDiv.textContent = 'Error: Could not retrieve session storage value.';
+                        }
+                    });
+                    
                 } else {
                     console.log(`No key starts with "${prefix}" in sessionStorage.`);
                 }

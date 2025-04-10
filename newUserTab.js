@@ -16,11 +16,138 @@ window.onload = function () {
 
   const initialData = [];
   
-  showAllData(platformUri, accessToken, objectname, id);
+  fetchUsersData(platformUri, accessToken);
   
 
-  document.getElementById('searchBox').addEventListener('input', filterTable);
+  //document.getElementById('searchBox').addEventListener('input', filterTable);
 };
+
+function fetchUsersData(platformUri, accessToken){
+  document.getElementById("userDropDown").textContent = 'Loading...'
+  const fieldsApiUrl = `https://${platformUri}/api/user-management/v1/users`;
+
+    fetch(fieldsApiUrl, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.Success) {
+               
+               createUserDropDown(data.Data, platformUri, accessToken, "User");
+            } else {
+                console.error("Error fetching Users:", data);
+            }
+        })
+        .catch(error => {
+            console.error(`Error fetching Users API: ${error}`);
+        });
+}
+
+
+function createUserDropDown(data, platformUri, accessToken, objectname){
+
+  const userDropDown = document.getElementById("userDropDown");
+  const input = document.createElement("input");
+  input.type = "text";
+  input.id = "objectDropDownInput";
+  input.placeholder = "Search Users...";
+  input.style.fontSize = "16px";
+  input.style.padding = "2px";
+
+  const suggestionsList = document.createElement("ul");
+  suggestionsList.style.position = "absolute";
+  suggestionsList.style.listStyle = "none";
+  suggestionsList.style.padding = "0";
+  suggestionsList.style.margin = "0";
+  suggestionsList.style.border = "1px solid #ccc";
+  suggestionsList.style.backgroundColor = "#fff";
+  suggestionsList.style.zIndex = "1000";
+  suggestionsList.style.display = "none";
+
+  document.getElementById("userDropDown").textContent = '';  
+  userDropDown.appendChild(input);
+  userDropDown.appendChild(suggestionsList);
+
+  let currentIndex = -1;
+
+        input.addEventListener("input", () => {
+            const value = input.value.toLowerCase();
+            suggestionsList.innerHTML = "";
+            currentIndex = -1;
+
+            if (value) {
+                const filteredData = data.filter(item => item.Name.toLowerCase().includes(value));
+
+                filteredData.forEach((item, index) => {
+                    const suggestionItem = document.createElement("li");
+                    suggestionItem.textContent = item.Name + " ("+item.UserName+")"; 
+                    suggestionItem.id = item.Id; 
+                    suggestionItem.style.padding = "5px";
+                    suggestionItem.style.cursor = "pointer";
+
+                    suggestionItem.addEventListener("click", () => {
+                        input.value = item.Name;
+                        //const userRecord = searchUserRecord(item.Id, );
+                        showAllData(item, platformUri, accessToken, objectname);
+                        suggestionsList.innerHTML = "";
+                    });
+
+                    suggestionItem.addEventListener("mouseenter", () => {
+                        currentIndex = index;
+                        updateSuggestionHighlight(suggestionsList, currentIndex);
+                    });
+
+                    suggestionsList.appendChild(suggestionItem);
+                });
+
+                suggestionsList.style.display = "block";
+            } else {
+                suggestionsList.style.display = "none";
+            }
+        });
+
+        input.addEventListener("keydown", (event) => {
+          const suggestions = suggestionsList.children;
+
+          if (event.key === "ArrowDown") {
+              currentIndex++;
+              if (currentIndex >= suggestions.length) currentIndex = suggestions.length - 1;
+              updateSuggestionHighlight(suggestionsList, currentIndex);
+          } else if (event.key === "ArrowUp") {
+              currentIndex--;
+              if (currentIndex < 0) currentIndex = 0;
+              updateSuggestionHighlight(suggestionsList, currentIndex);
+          } else if (event.key === "Enter") {
+              if (currentIndex >= 0 && currentIndex < suggestions.length) {
+                  input.value = suggestions[currentIndex].textContent;
+                  const userId = suggestions[currentIndex].id;
+                  const uRecord = data.filter(item => item.Id.toLowerCase().includes(userId));
+                  showAllData(uRecord[0], platformUri, accessToken, objectname);
+                  suggestionsList.innerHTML = "";
+              }
+          }
+      });
+
+}
+
+function updateSuggestionHighlight(suggestionsList, currentIndex) {
+  Array.from(suggestionsList.children).forEach((item, index) => {
+      if (index === currentIndex) {
+          item.style.backgroundColor = "#e0e0e0";
+      } else {
+          item.style.backgroundColor = "#fff";
+      }
+  });
+}
 
 function renderOpenRecordinODE(platformUri, objectname, id){
   const OpenInODEDiv = document.getElementById("OpenInODE");
@@ -46,49 +173,25 @@ function renderOpenRecordinApp(platformUri, objectname, id){
   }
 }
 
-function showAllData(platformUri, accessToken, objectname, id){
-  if (accessToken && objectname && id) {
-    
-    const apiUrl = `https://${platformUri}/api/data/v1/objects/${objectname}/${id}`;
 
-    fetch(apiUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'accept': '*/*'
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
+function showAllData(userRecord, platformUri, accessToken, objectname){
 
-      if (data.Success && data.Data.length > 0) {
-        const templateData = data.Data[0];
+  if (userRecord) {
+    const userDetailDiv = document.getElementById("userDetailDiv");
+    userDetailDiv.textContent = userRecord.Name + " ("+userRecord.UserName+" / "+userRecord.Email+")"; 
+    const userData = Object.keys(userRecord).map(key => ({
+        name: key,
+        value: userRecord[key],
+    }));
 
-        const fields = Object.keys(templateData).map(key => ({
-            name: key,
-            value: templateData[key],
-        }));
-
-        initializeTable(fields, platformUri, accessToken, objectname);
-
-        
-
-
-		
-		    document.getElementById('searchBox').style.display = 'inline-block';
-        renderOpenRecordinODE(platformUri, objectname, id);
-        renderOpenRecordinApp(platformUri, objectname, id)
-      }
-      else{
-        const tableDiv = document.getElementById('tableDiv');
-        tableDiv.textContent = `Some error occurred!!`;
-      }
-    })
-    .catch(error => {
-      const tableDiv = document.getElementById('tableDiv');
-      tableDiv.textContent = `Error fetching API: ${error}`;
-    });
+    initializeTable(userData, platformUri, accessToken, objectname);
+    renderOpenRecordinODE(platformUri, objectname, userRecord.Id);
   }
+  else{
+    const tableDiv = document.getElementById('tableDiv');
+    tableDiv.textContent = `Some error occurred!!`;
+  }
+    
 }
 
 async function fetchMetadata(platformUri, accessToken, objectname) {
@@ -166,9 +269,9 @@ function renderTable(dataMap) {
     dataTypeCell.textContent = data.type || 'Unknown';
     valueCell.textContent = typeof data.value === 'object' && data.value !== null ? JSON.stringify(data.value, null, 2) : data.value;
 
-    valueCell.addEventListener("dblclick", function () {
-      makeCellEditable(fieldNameCell,valueCell);
-    });
+    //valueCell.addEventListener("dblclick", function () {
+      //makeCellEditable(fieldNameCell,valueCell);
+    //});
 
     dropdownCell.appendChild(createDropdown(data.name));
 
@@ -195,14 +298,15 @@ function createDropdown(fieldName) {
   const faI = document.createElement('i');
   faI.classList.add('fa');
   faI.classList.add('fa-caret-down');
+
   const button = document.createElement('button');
   button.appendChild(faI);
-  button.classList.add('dropdown-btn');
+  button.classList.add('dropdown-btn'); 
 
 
   const dropdownContent = document.createElement('div');
-  dropdownContent.classList.add('dropdown-content');
-  dropdownContent.style.display = 'none';
+  dropdownContent.classList.add('dropdown-content'); 
+  dropdownContent.style.display = 'none'; 
 
   const objectname = getQueryParam('objectType');
   const platformUri = getQueryParam('hostname');
@@ -244,7 +348,7 @@ function createDropdownForObject() {
   const faI = document.createElement('i');
   faI.classList.add('fa');
   faI.classList.add('fa-caret-down');
-  // Create the dropdown button
+
   const button = document.createElement('button');
   button.appendChild(faI);
   button.style.padding = '5px 10px';
@@ -255,7 +359,7 @@ function createDropdownForObject() {
   dropdownContent.classList.add('dropdown-content');
   dropdownContent.style.right = '0.8%';
   dropdownContent.style.fontSize = '16px';
-  dropdownContent.style.display = 'none';
+  dropdownContent.style.display = 'none'; 
 
   const objectname = getQueryParam('objectType');
   const platformUri = getQueryParam('hostname');

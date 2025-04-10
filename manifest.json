@@ -26,7 +26,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["newQueryTab.js", "newTab.js","inputs.txt", "inspect.html", "newQueryTab.html", "newTab.html", "popup.html"],
+      "resources": ["newQueryTab.js", "newTab.js","inputs.txt", "inspect.html", "inspectUserData.html", "newQueryTab.html", "newTab.html", "popup.html"],
       "matches": ["*://*.congacloud.com/*", "*://*.congacloud.eu/*", "*://*.congacloud.au/*", "*://*.congacloud.io/*"]
     }
   ],
